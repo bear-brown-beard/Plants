@@ -20,7 +20,7 @@ func InitDB() {
 	}
 
 	// Автоматическая миграция для модели Plant
-	if err := db.AutoMigrate(&models.Plant{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.Plant{}); err != nil {
 		log.Fatal("Ошибка миграции:", err)
 	}
 

@@ -14,6 +14,7 @@ func main() {
 
 	r := gin.Default()
 
+	routes.RegisterUserAPI(r, db)
 	routes.RegisterAdminAPI(r, db)
 	routes.RegisterPlantAPI(r, db)
 
