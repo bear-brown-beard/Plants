@@ -17,6 +17,7 @@ func main() {
 	routes.RegisterUserAPI(r, db)
 	routes.RegisterAdminAPI(r, db)
 	routes.RegisterPlantAPI(r, db)
+	routes.RegisterAuthRoutes(r, db)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Ошибка при запуске сервера: ", err)

@@ -11,6 +11,7 @@ import (
 
 // Регистрация пользователя
 func RegisterUserHandlers(r *gin.Engine, db *gorm.DB) {
+	// Регистрация пользователя
 	r.POST("/users", func(c *gin.Context) {
 		var user models.User
 		if err := c.ShouldBindJSON(&user); err != nil {
@@ -36,6 +37,7 @@ func RegisterUserHandlers(r *gin.Engine, db *gorm.DB) {
 		c.JSON(http.StatusOK, users)
 	})
 
+	// Получение пользователя по ID
 	r.GET("/users/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		user, err := services.GetUserByID(db, id)
@@ -47,6 +49,7 @@ func RegisterUserHandlers(r *gin.Engine, db *gorm.DB) {
 		c.JSON(http.StatusOK, user)
 	})
 
+	// Обновление пользователя
 	r.PUT("/users/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		var user models.User
@@ -63,6 +66,7 @@ func RegisterUserHandlers(r *gin.Engine, db *gorm.DB) {
 		c.JSON(http.StatusOK, user)
 	})
 
+	// Удаление пользователя
 	r.DELETE("/users/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		if err := services.DeleteUser(db, id); err != nil {
