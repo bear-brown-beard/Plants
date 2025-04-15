@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"go_plants/auth"
 	"go_plants/handlers"
 
 	"github.com/gin-gonic/gin"
@@ -13,4 +14,6 @@ func RegisterAuthRoutes(r *gin.Engine, db *gorm.DB) {
 	r.POST("/login", handlers.LoginUser(db))
 	// Регистрируем маршрут для регистрации пользователя
 	r.POST("/register", handlers.RegisterUser(db))
+	r.GET("/profile", auth.AuthMiddleware(), handlers.GetProfile(db))
+	r.PUT("/profile", auth.AuthMiddleware(), handlers.UpdateProfile(db))
 }

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -22,6 +23,8 @@ func GenerateToken(userID uint) (string, error) {
 
 // Проверка и парсинг токена
 func ParseToken(tokenString string) (uint, error) {
+	fmt.Println("Parsing token:", tokenString) // Логируем перед парсингом
+
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Проверка метода подписи
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -31,16 +34,19 @@ func ParseToken(tokenString string) (uint, error) {
 	})
 
 	if err != nil || !token.Valid {
+		fmt.Println("Token is invalid:", err) // Логируем ошибку
 		return 0, errors.New("некорректный токен")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
+		fmt.Println("Error extracting claims") // Логируем ошибку
 		return 0, errors.New("ошибка при извлечении claims")
 	}
 
 	userIDFloat, ok := claims["user_id"].(float64)
 	if !ok {
+		fmt.Println("Error converting user_id") // Логируем ошибку
 		return 0, errors.New("user_id не найден в токене")
 	}
 

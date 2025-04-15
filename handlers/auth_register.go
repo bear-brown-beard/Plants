@@ -13,7 +13,6 @@ import (
 func RegisterUser(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var input models.User
-
 		if err := c.ShouldBindJSON(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат данных"})
 			return
@@ -26,7 +25,7 @@ func RegisterUser(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Хэшируем пароль перед сохранением
+		// Хэшируем пароль
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при шифровании пароля"})
@@ -34,7 +33,7 @@ func RegisterUser(db *gorm.DB) gin.HandlerFunc {
 		}
 		input.Password = string(hashedPassword)
 
-		// Создаём пользователя
+		// Сохраняем пользователя
 		if err := db.Create(&input).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при создании пользователя"})
 			return
@@ -42,13 +41,7 @@ func RegisterUser(db *gorm.DB) gin.HandlerFunc {
 
 		c.JSON(http.StatusCreated, gin.H{
 			"message": "Пользователь успешно зарегистрирован",
-			"user": gin.H{
-				"id":         input.ID,
-				"first_name": input.FirstName,
-				"last_name":  input.LastName,
-				"email":      input.Email,
-				"city":       input.City,
-			},
+			"user":    input,
 		})
 	}
 }
