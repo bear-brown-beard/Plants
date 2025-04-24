@@ -1,25 +1,34 @@
 package main
 
 import (
-	"go_plants/config"
-	"go_plants/routes"
 	"log"
+	"os"
+
+	"go_plants/config"
+	"go_plants/internal/admin"
+	"go_plants/internal/user"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	config.InitDB()
-	db := config.DB
+	// Initialize database
+	db := config.InitDB()
 
+	// Create router
 	r := gin.Default()
 
-	routes.RegisterUserAPI(r, db)
-	routes.RegisterAdminAPI(r, db)
-	routes.RegisterPlantAPI(r, db)
-	routes.RegisterAuthRoutes(r, db)
+	// Register routes
+	user.RegisterUserRoutes(r, db)
+	admin.RegisterAdminHandlers(r, db)
 
-	if err := r.Run(":8080"); err != nil {
-		log.Fatal("Ошибка при запуске сервера: ", err)
+	// Start server
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	if err := r.Run(":" + port); err != nil {
+		log.Fatal("Failed to start server:", err)
 	}
 }

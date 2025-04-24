@@ -1,10 +1,9 @@
-package services
+package user
 
 import (
 	"errors"
-	"go_plants/models"
 	"log"
-	"regexp"
+	"unicode"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -12,7 +11,15 @@ import (
 )
 
 // Создание пользователя
-func CreateUser(db *gorm.DB, user *models.User) error {
+func CreateUser(db *gorm.DB, user *User) error {
+	// Проверка пароля
+	if user.Password == "" {
+		return errors.New("пароль не может быть пустым")
+	}
+	if !isPasswordValid(user.Password) {
+		return errors.New("пароль должен содержать минимум 8 символов, включая хотя бы одну букву и одну цифру")
+	}
+
 	// Хешируем пароль
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -22,32 +29,24 @@ func CreateUser(db *gorm.DB, user *models.User) error {
 	user.Password = string(hashedPassword)
 
 	// Проверка на существующий email
-	var existingUser models.User
+	var existingUser User
 	if err := db.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
 		log.Println("Ошибка: пользователь с таким email уже существует")
 		return errors.New("пользователь с таким email уже существует")
-	}
-
-	if user.Password == "" {
-		return errors.New("пароль не может быть пустым")
-	}
-
-	var passwordRegex = regexp.MustCompile(`^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$`)
-	if !passwordRegex.MatchString(user.Password) {
-		return errors.New("пароль должен содержать минимум 8 символов, включая буквы и цифры")
 	}
 
 	// Создание пользователя
 	if err := db.Create(user).Error; err != nil {
 		return err
 	}
+
 	log.Println("Пользователь успешно создан")
 	return nil
 }
 
 // Логин пользователя
-func LoginUser(db *gorm.DB, email, password string) (*models.User, error) {
-	var user models.User
+func AuthenticateUser(db *gorm.DB, email, password string) (*User, error) {
+	var user User
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, errors.New("пользователь не найден")
 	}
@@ -61,8 +60,8 @@ func LoginUser(db *gorm.DB, email, password string) (*models.User, error) {
 }
 
 // Получение всех пользователей
-func GetAllUsers(db *gorm.DB) ([]models.User, error) {
-	var users []models.User
+func GetAllUsers(db *gorm.DB) ([]User, error) {
+	var users []User
 	if err := db.Find(&users).Error; err != nil {
 		return nil, err
 	}
@@ -70,8 +69,8 @@ func GetAllUsers(db *gorm.DB) ([]models.User, error) {
 }
 
 // Получение пользователя по ID
-func GetUserByID(db *gorm.DB, id string) (*models.User, error) {
-	var user models.User
+func GetUserByID(db *gorm.DB, id string) (*User, error) {
+	var user User
 	if err := db.First(&user, id).Error; err != nil {
 		return nil, err
 	}
@@ -79,8 +78,8 @@ func GetUserByID(db *gorm.DB, id string) (*models.User, error) {
 }
 
 // Обновление пользователя
-func UpdateUser(db *gorm.DB, id string, updated *models.User) error {
-	var user models.User
+func UpdateUser(db *gorm.DB, id string, updated *User) error {
+	var user User
 	if err := db.First(&user, id).Error; err != nil {
 		return err
 	}
@@ -90,5 +89,24 @@ func UpdateUser(db *gorm.DB, id string, updated *models.User) error {
 
 // Удаление пользователя
 func DeleteUser(db *gorm.DB, id string) error {
-	return db.Delete(&models.User{}, id).Error
+	return db.Delete(&User{}, id).Error
+}
+
+func isPasswordValid(password string) bool {
+	if len(password) < 8 {
+		return false
+	}
+
+	hasLetter := false
+	hasDigit := false
+
+	for _, c := range password {
+		if unicode.IsLetter(c) {
+			hasLetter = true
+		} else if unicode.IsDigit(c) {
+			hasDigit = true
+		}
+	}
+
+	return hasLetter && hasDigit
 }

@@ -1,7 +1,8 @@
 package config
 
 import (
-	"go_plants/models"
+	"go_plants/internal/models"
+	"go_plants/internal/user"
 	"log"
 
 	"gorm.io/driver/postgres"
@@ -10,7 +11,8 @@ import (
 
 var DB *gorm.DB
 
-func InitDB() {
+// InitDB initializes the database connection
+func InitDB() *gorm.DB {
 	// Подключение к базе данных с жестко заданными параметрами
 	dsn := "host=localhost user=plants_user password=secret dbname=plants_db port=5432 sslmode=disable"
 
@@ -19,11 +21,12 @@ func InitDB() {
 		log.Fatal("Ошибка подключения к базе данных", err)
 	}
 
-	// Автоматическая миграция для модели Plant
-	if err := db.AutoMigrate(&models.User{}, &models.Plant{}); err != nil {
+	// Автоматическая миграция схемы
+	if err := db.AutoMigrate(&user.User{}, &models.Plant{}, &models.UserPlant{}); err != nil {
 		log.Fatal("Ошибка миграции:", err)
 	}
 
 	DB = db
 	log.Println("База данных успешно подключена")
+	return db
 }
