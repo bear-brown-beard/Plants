@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"go_plants/models"
+	"go_plants/internal/models"
 	"log"
 	"regexp"
 
@@ -11,8 +11,16 @@ import (
 	"gorm.io/gorm"
 )
 
+// UserServiceImpl реализует интерфейс UserService
+type UserServiceImpl struct{}
+
+// NewUserService создает новый экземпляр UserServiceImpl
+func NewUserService() UserService {
+	return &UserServiceImpl{}
+}
+
 // Создание пользователя
-func CreateUser(db *gorm.DB, user *models.User) error {
+func (s *UserServiceImpl) CreateUser(db *gorm.DB, user *models.User) error {
 	// Хешируем пароль
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -46,7 +54,7 @@ func CreateUser(db *gorm.DB, user *models.User) error {
 }
 
 // Логин пользователя
-func LoginUser(db *gorm.DB, email, password string) (*models.User, error) {
+func (s *UserServiceImpl) LoginUser(db *gorm.DB, email, password string) (*models.User, error) {
 	var user models.User
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, errors.New("пользователь не найден")
@@ -61,7 +69,7 @@ func LoginUser(db *gorm.DB, email, password string) (*models.User, error) {
 }
 
 // Получение всех пользователей
-func GetAllUsers(db *gorm.DB) ([]models.User, error) {
+func (s *UserServiceImpl) GetAllUsers(db *gorm.DB) ([]models.User, error) {
 	var users []models.User
 	if err := db.Find(&users).Error; err != nil {
 		return nil, err
@@ -70,7 +78,7 @@ func GetAllUsers(db *gorm.DB) ([]models.User, error) {
 }
 
 // Получение пользователя по ID
-func GetUserByID(db *gorm.DB, id string) (*models.User, error) {
+func (s *UserServiceImpl) GetUserByID(db *gorm.DB, id uint) (*models.User, error) {
 	var user models.User
 	if err := db.First(&user, id).Error; err != nil {
 		return nil, err
@@ -79,7 +87,7 @@ func GetUserByID(db *gorm.DB, id string) (*models.User, error) {
 }
 
 // Обновление пользователя
-func UpdateUser(db *gorm.DB, id string, updated *models.User) error {
+func (s *UserServiceImpl) UpdateUser(db *gorm.DB, id string, updated *models.User) error {
 	var user models.User
 	if err := db.First(&user, id).Error; err != nil {
 		return err
@@ -89,6 +97,6 @@ func UpdateUser(db *gorm.DB, id string, updated *models.User) error {
 }
 
 // Удаление пользователя
-func DeleteUser(db *gorm.DB, id string) error {
+func (s *UserServiceImpl) DeleteUser(db *gorm.DB, id string) error {
 	return db.Delete(&models.User{}, id).Error
 }

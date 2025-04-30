@@ -4,7 +4,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Структура для растения
 type Plant struct {
 	gorm.Model
 	Name        string `gorm:"column:name;type:varchar(100);not null" json:"name"`
