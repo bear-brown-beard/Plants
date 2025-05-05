@@ -1,47 +1,37 @@
 package services
 
 import (
-	"errors"
+	"context"
 	"go_plants/internal/models"
-
-	"gorm.io/gorm"
+	"go_plants/internal/repositories"
 )
 
-// PlantServiceImpl реализует интерфейс PlantService
-type PlantServiceImpl struct{}
-
-// NewPlantService создает новый экземпляр PlantServiceImpl
-func NewPlantService() PlantService {
-	return &PlantServiceImpl{}
+type PlantService interface {
+	Create(ctx context.Context, plant *models.Plant) error
+	GetAll(ctx context.Context) ([]*models.Plant, error)
+	GetByID(ctx context.Context, id uint, userID uint) (*models.Plant, error)
+	Delete(ctx context.Context, id uint, userID uint) error
 }
 
-func (s *PlantServiceImpl) CreatePlant(db *gorm.DB, plant *models.Plant) error {
-	return db.Create(plant).Error
+type plantService struct {
+	plantRepository repositories.PlantRepository
 }
 
-func (s *PlantServiceImpl) GetAllPlants(db *gorm.DB) ([]models.Plant, error) {
-	var plants []models.Plant
-	err := db.Find(&plants).Error
-	return plants, err
-}
-
-func (s *PlantServiceImpl) GetPlantByID(db *gorm.DB, id uint) (*models.Plant, error) {
-	var plant models.Plant
-	result := db.First(&plant, id)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil, errors.New("Растение не найдено")
+func NewPlantService(plantRepo repositories.PlantRepository) PlantService {
+	return &plantService{
+		plantRepository: plantRepo,
 	}
-	return &plant, result.Error
 }
 
-func (s *PlantServiceImpl) UpdatePlant(db *gorm.DB, id uint, updated *models.Plant) error {
-	var plant models.Plant
-	if err := db.First(&plant, id).Error; err != nil {
-		return err
-	}
-	return db.Model(&plant).Updates(updated).Error
+func (s *plantService) Create(ctx context.Context, plant *models.Plant) error {
+	return s.plantRepository.Create(ctx, plant)
 }
-
-func (s *PlantServiceImpl) DeletePlant(db *gorm.DB, id uint) error {
-	return db.Delete(&models.Plant{}, id).Error
+func (s *plantService) GetAll(ctx context.Context) ([]*models.Plant, error) {
+	return s.plantRepository.GetAll(ctx)
+}
+func (s *plantService) GetByID(ctx context.Context, id uint, userID uint) (*models.Plant, error) {
+	return s.plantRepository.GetByID(ctx, id, userID)
+}
+func (s *plantService) Delete(ctx context.Context, id uint, userID uint) error {
+	return s.plantRepository.Delete(ctx, id, userID)
 }

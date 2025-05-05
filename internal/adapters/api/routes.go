@@ -1,45 +1,43 @@
 package api
 
 import (
-	"go_plants/internal/auth"
+	"database/sql"
+
+	"go_plants/internal/repositories"
 	"go_plants/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-// RegisterUserAPI регистрирует маршруты для пользователей
-func RegisterUserAPI(r *gin.Engine, db *gorm.DB) {
-	userService := services.NewUserService()
+func RegisterUserAPI(r *gin.Engine, db *sql.DB) {
+	userRepo := repositories.NewUserRepository(db)
+	userService := services.NewUserService(userRepo)
 	userHandler := NewUserHandler(userService)
 
-	// Регистрируем маршруты для пользователей
-	r.POST("/users", userHandler.CreateUser(db))
-	r.GET("/users/:id", userHandler.GetUser(db))
-	r.PUT("/users/:id", userHandler.UpdateUser(db))
-	r.DELETE("/users/:id", userHandler.DeleteUser(db))
+	userRoutes := r.Group("/users") // Base route for users
+	{
+		userRoutes.GET("/:id", userHandler.GetUser)       // Get user by ID
+		userRoutes.GET("/all", userHandler.GetByAllUsers) // Get all users
+		userRoutes.POST("/creat", userHandler.CreateUser) // Create a new user
+		userRoutes.PUT("/:id", userHandler.UpdateUser)    // Update user by ID
+		userRoutes.DELETE("/:id", userHandler.DeleteUser) // Delete user by ID
+	}
 }
 
-// RegisterPlantAPI регистрирует маршруты для растений
-func RegisterPlantAPI(r *gin.Engine, db *gorm.DB) {
-	plantService := services.NewPlantService()
+func RegisterPlantAPI(r *gin.Engine, db *sql.DB) {
+	plantRepo := repositories.NewPlantRepository(db)
+	plantService := services.NewPlantService(plantRepo)
 	plantHandler := NewPlantHandler(plantService)
 
-	// Регистрируем маршруты для растений
-	r.POST("/plants", plantHandler.CreatePlant(db))
-	r.GET("/plants", plantHandler.GetAllPlants(db))
-	r.GET("/plants/:id", plantHandler.GetPlant(db))
-	r.PUT("/plants/:id", plantHandler.UpdatePlant(db))
-	r.DELETE("/plants/:id", plantHandler.DeletePlant(db))
-}
+	plantRoutes := r.Group("/plants") // Base route for plants
+	{
+		plantRoutes.GET("/:id", plantHandler.GetPlant)       // Get a specific plant by ID
+		plantRoutes.GET("/all", plantHandler.GetAllPlants)   // Get all plants
+		plantRoutes.POST("/creat", plantHandler.CreatePlant) // Get all plants
+		plantRoutes.DELETE("/:id", plantHandler.DeletePlant) // Delete a specific plant by ID
 
-// RegisterAuthRoutes регистрирует маршруты для аутентификации
-func RegisterAuthRoutes(r *gin.Engine, db *gorm.DB) {
-	userService := services.NewUserService()
-	authService := NewAuthService(userService)
+		plantRoutes.GET("/user/:user_id", plantHandler.GetPlantsUser)    // Get all plants for a user
+		plantRoutes.GET("/user/:user_id/:id", plantHandler.GetPlantUser) // Get a specific plant by ID
 
-	// Регистрируем маршруты для аутентификации
-	r.POST("/login", authService.LoginUser(db))
-	r.POST("/register", authService.RegisterUser(db))
-	r.GET("/profile", auth.AuthMiddleware(), authService.GetProfile(db))
+	}
 }

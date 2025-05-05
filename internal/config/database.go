@@ -1,18 +1,16 @@
 package config
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
-	"go_plants/internal/models"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	_ "github.com/lib/pq"
 )
 
-var DB *gorm.DB
+var DB *sql.DB
 
 func InitDB() {
 	// Загружаем переменные окружения из .env файла
@@ -34,15 +32,15 @@ func InitDB() {
 
 	// Подключаемся к базе данных
 	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	DB, err = sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	// Автоматическая миграция для модели Plant
-	if err := DB.AutoMigrate(&models.User{}, &models.Plant{}); err != nil {
-		log.Fatal("Ошибка миграции:", err)
+	// Проверяем соединение
+	if err = DB.Ping(); err != nil {
+		log.Fatal("Cannot reach database:", err)
 	}
 
-	log.Println("Successfully connected to database")
+	log.Println("Successfully connected to the database")
 }

@@ -1,102 +1,50 @@
 package services
 
 import (
-	"errors"
+	"context"
 	"go_plants/internal/models"
-	"log"
-	"regexp"
+	"go_plants/internal/repositories"
 
 	"golang.org/x/crypto/bcrypt"
-
-	"gorm.io/gorm"
 )
 
-// UserServiceImpl реализует интерфейс UserService
-type UserServiceImpl struct{}
-
-// NewUserService создает новый экземпляр UserServiceImpl
-func NewUserService() UserService {
-	return &UserServiceImpl{}
+type UserService interface {
+	Create(ctx context.Context, user *models.User) error
+	GetByID(ctx context.Context, id uint) (*models.User, error)
+	GetByAllUsers(ctx context.Context) ([]*models.User, error)
+	Update(ctx context.Context, user *models.User) error
+	Delete(ctx context.Context, id uint) error
 }
 
-// Создание пользователя
-func (s *UserServiceImpl) CreateUser(db *gorm.DB, user *models.User) error {
-	// Хешируем пароль
+type userService struct {
+	userRepository repositories.UserRepository
+}
+
+func NewUserService(userRepo repositories.UserRepository) UserService {
+	return &userService{
+		userRepository: userRepo,
+	}
+}
+
+func (s *userService) Create(ctx context.Context, user *models.User) error {
+	// Hash the password before saving to database
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Println("Ошибка при хешировании пароля:", err)
 		return err
 	}
 	user.Password = string(hashedPassword)
 
-	// Проверка на существующий email
-	var existingUser models.User
-	if err := db.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
-		log.Println("Ошибка: пользователь с таким email уже существует")
-		return errors.New("пользователь с таким email уже существует")
-	}
-
-	if user.Password == "" {
-		return errors.New("пароль не может быть пустым")
-	}
-
-	var passwordRegex = regexp.MustCompile(`^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$`)
-	if !passwordRegex.MatchString(user.Password) {
-		return errors.New("пароль должен содержать минимум 8 символов, включая буквы и цифры")
-	}
-
-	// Создание пользователя
-	if err := db.Create(user).Error; err != nil {
-		return err
-	}
-	log.Println("Пользователь успешно создан")
-	return nil
+	return s.userRepository.Create(ctx, user)
 }
-
-// Логин пользователя
-func (s *UserServiceImpl) LoginUser(db *gorm.DB, email, password string) (*models.User, error) {
-	var user models.User
-	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, errors.New("пользователь не найден")
-	}
-
-	// Проверка пароля
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, errors.New("неверный пароль")
-	}
-
-	return &user, nil
+func (s *userService) GetByID(ctx context.Context, id uint) (*models.User, error) {
+	return s.userRepository.GetByID(ctx, id)
 }
-
-// Получение всех пользователей
-func (s *UserServiceImpl) GetAllUsers(db *gorm.DB) ([]models.User, error) {
-	var users []models.User
-	if err := db.Find(&users).Error; err != nil {
-		return nil, err
-	}
-	return users, nil
+func (s *userService) GetByAllUsers(ctx context.Context) ([]*models.User, error) {
+	return s.userRepository.GetByAllUsers(ctx)
 }
-
-// Получение пользователя по ID
-func (s *UserServiceImpl) GetUserByID(db *gorm.DB, id uint) (*models.User, error) {
-	var user models.User
-	if err := db.First(&user, id).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
+func (s *userService) Update(ctx context.Context, user *models.User) error {
+	return s.userRepository.Update(ctx, user)
 }
-
-// Обновление пользователя
-func (s *UserServiceImpl) UpdateUser(db *gorm.DB, id string, updated *models.User) error {
-	var user models.User
-	if err := db.First(&user, id).Error; err != nil {
-		return err
-	}
-
-	return db.Model(&user).Updates(updated).Error
-}
-
-// Удаление пользователя
-func (s *UserServiceImpl) DeleteUser(db *gorm.DB, id string) error {
-	return db.Delete(&models.User{}, id).Error
+func (s *userService) Delete(ctx context.Context, id uint) error {
+	return s.userRepository.Delete(ctx, id)
 }

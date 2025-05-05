@@ -1,15 +1,11 @@
 package models
 
-import (
-	"gorm.io/gorm"
-)
-
 type User struct {
-	gorm.Model
-	FirstName string  `gorm:"column:first_name;type:varchar(100);not null" json:"first_name" binding:"required"`
-	LastName  string  `gorm:"column:last_name;type:varchar(100);not null" json:"last_name" binding:"required"`
-	Email     string  `gorm:"column:email;type:varchar(100);unique" json:"email" binding:"required,email"`
-	Password  string  `gorm:"column:password;type:varchar(100);not null" json:"password" binding:"required,min=6"`
-	City      string  `gorm:"column:city;type:varchar(100);" json:"city"`
-	Plants    []Plant `gorm:"foreignKey:UserID" json:"plants"`
+	ID        uint    `json:"id"`         // PRIMARY KEY, SERIAL/BIGSERIAL
+	FirstName string  `json:"first_name"` // VARCHAR(100) NOT NULL
+	LastName  string  `json:"last_name"`  // VARCHAR(100) NOT NULL
+	Email     string  `json:"email"`      // VARCHAR(100) UNIQUE NOT NULL
+	Password  string  `json:"password"`   // VARCHAR(100) NOT NULL, MIN 6 символов (валидация в коде)
+	City      string  `json:"city"`       // VARCHAR(100), необязательное поле
+	Plants    []Plant `json:"plants"`     // Связь "один-ко-многим" (user → plants), реализуется вручную
 }
