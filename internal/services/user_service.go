@@ -8,6 +8,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// UserService интерфейс для работы с пользователями
+// Он определяет методы для создания, получения, обновления и удаления пользователей
+// а также для получения всех пользователей
 type UserService interface {
 	Create(ctx context.Context, user *models.User) error
 	GetByID(ctx context.Context, id uint) (*models.User, error)
@@ -16,10 +19,13 @@ type UserService interface {
 	Delete(ctx context.Context, id uint) error
 }
 
+// userService структура которая реализует интерфейс UserService
+// и содержит ссылку на репозиторий пользователей
 type userService struct {
 	userRepository repositories.UserRepository
 }
 
+// NewUserService конструктор для создания нового сервиса пользователя
 func NewUserService(userRepo repositories.UserRepository) UserService {
 	return &userService{
 		userRepository: userRepo,

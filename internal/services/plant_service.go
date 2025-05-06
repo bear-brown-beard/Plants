@@ -10,8 +10,8 @@ type PlantService interface {
 	Create(ctx context.Context, plant *models.Plant) error
 	GetAll(ctx context.Context) ([]*models.Plant, error)
 	GetByID(ctx context.Context, id uint, userID uint) (*models.Plant, error)
-	Delete(ctx context.Context, id uint, userID uint) error
 	Update(ctx context.Context, id uint, userID uint, plant *models.Plant) error
+	Delete(ctx context.Context, id uint, userID uint) error
 }
 
 type plantService struct {
