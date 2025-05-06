@@ -10,6 +10,7 @@ type PlantRepository interface {
 	Create(ctx context.Context, plant *models.Plant) error
 	GetAll(ctx context.Context) ([]*models.Plant, error)
 	GetByID(ctx context.Context, id uint, userID uint) (*models.Plant, error)
+	Update(ctx context.Context, id uint, userID uint, plant *models.Plant) error
 	Delete(ctx context.Context, id uint, userID uint) error
 }
 
@@ -29,7 +30,6 @@ func (r *plantRepository) Create(ctx context.Context, plant *models.Plant) error
 		plant.Name, plant.Description, plant.Watering, plant.Repotting,
 		plant.Breeding, plant.UserID).Scan(&plant.ID)
 }
-
 func (r *plantRepository) GetAll(ctx context.Context) ([]*models.Plant, error) {
 	var plants []*models.Plant
 	query := `SELECT id, name, description, watering, repotting, breeding, user_id 
@@ -51,7 +51,6 @@ func (r *plantRepository) GetAll(ctx context.Context) ([]*models.Plant, error) {
 
 	return plants, nil
 }
-
 func (r *plantRepository) GetByID(ctx context.Context, id uint, userID uint) (*models.Plant, error) {
 	var plant models.Plant
 	query := `SELECT id, name, description, watering, repotting, breeding, user_id 
@@ -68,7 +67,15 @@ func (r *plantRepository) GetByID(ctx context.Context, id uint, userID uint) (*m
 
 	return &plant, nil
 }
+func (r *plantRepository) Update(ctx context.Context, id uint, userID uint, plant *models.Plant) error {
+	query := `UPDATE plants SET name = $1, description = $2, watering = $3, 
+		repotting = $4, breeding = $5 WHERE id = $6 AND user_id = $7`
 
+	_, err := r.db.ExecContext(ctx, query,
+		plant.Name, plant.Description, plant.Watering,
+		plant.Repotting, plant.Breeding, id, userID)
+	return err
+}
 func (r *plantRepository) Delete(ctx context.Context, id uint, userID uint) error {
 	query := `DELETE FROM plants WHERE id = $1 AND user_id = $2`
 	_, err := r.db.ExecContext(ctx, query, id, userID)

@@ -34,6 +34,7 @@ func RegisterPlantAPI(r *gin.Engine, db *sql.DB) {
 		plantRoutes.GET("/:id", plantHandler.GetPlant)       // Get a specific plant by ID
 		plantRoutes.GET("/all", plantHandler.GetAllPlants)   // Get all plants
 		plantRoutes.POST("/creat", plantHandler.CreatePlant) // Get all plants
+		plantRoutes.PUT("/:id", plantHandler.UpdatePlant)    // Update a specific plant by ID
 		plantRoutes.DELETE("/:id", plantHandler.DeletePlant) // Delete a specific plant by ID
 
 		plantRoutes.GET("/user/:user_id", plantHandler.GetPlantsUser)    // Get all plants for a user

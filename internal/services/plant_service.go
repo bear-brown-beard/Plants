@@ -11,6 +11,7 @@ type PlantService interface {
 	GetAll(ctx context.Context) ([]*models.Plant, error)
 	GetByID(ctx context.Context, id uint, userID uint) (*models.Plant, error)
 	Delete(ctx context.Context, id uint, userID uint) error
+	Update(ctx context.Context, id uint, userID uint, plant *models.Plant) error
 }
 
 type plantService struct {
@@ -31,6 +32,9 @@ func (s *plantService) GetAll(ctx context.Context) ([]*models.Plant, error) {
 }
 func (s *plantService) GetByID(ctx context.Context, id uint, userID uint) (*models.Plant, error) {
 	return s.plantRepository.GetByID(ctx, id, userID)
+}
+func (s *plantService) Update(ctx context.Context, id uint, userID uint, plant *models.Plant) error {
+	return s.plantRepository.Update(ctx, id, userID, plant)
 }
 func (s *plantService) Delete(ctx context.Context, id uint, userID uint) error {
 	return s.plantRepository.Delete(ctx, id, userID)

@@ -63,6 +63,35 @@ func (h *PlantHandler) GetPlant(c *gin.Context) {
 
 	c.JSON(http.StatusOK, plant)
 }
+func (h *PlantHandler) UpdatePlant(c *gin.Context) {
+	idParam := c.Param("id")
+	userIDParam := c.Param("user_id")
+
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plant ID"})
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user_id"})
+		return
+	}
+
+	var plant models.Plant
+	if err := c.ShouldBindJSON(&plant); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.plantService.Update(c.Request.Context(), uint(id), uint(userID), &plant); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Plant updated successfully"})
+}
 func (h *PlantHandler) DeletePlant(c *gin.Context) {
 	idParam := c.Param("id")
 	userIDParam := c.Param("user_id")
