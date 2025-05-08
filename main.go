@@ -16,7 +16,6 @@ func main() {
 
 	// Регистрируем маршруты
 	api.RegisterUserAPI(r, db)
-	api.RegisterPlantAPI(r, db)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Ошибка при запуске сервера: ", err)
