@@ -1,8 +1,8 @@
 package main
 
 import (
-	"go_plants/internal/adapters/api"
-	"go_plants/internal/config"
+	"user_services/internal/adapters/api"
+	"user_services/internal/config"
 	"log"
 
 	"github.com/gin-gonic/gin"

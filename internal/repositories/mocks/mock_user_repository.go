@@ -6,7 +6,7 @@ package mocks
 
 import (
 	context "context"
-	models "go_plants/internal/models"
+	models "user_services/internal/models"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

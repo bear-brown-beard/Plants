@@ -3,8 +3,8 @@ package api
 import (
 	"database/sql"
 
-	"go_plants/internal/repositories"
-	"go_plants/internal/services"
+	"user_services/internal/repositories"
+	"user_services/internal/services"
 
 	"github.com/gin-gonic/gin"
 )

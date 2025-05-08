@@ -3,8 +3,8 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"go_plants/internal/models"
-	"go_plants/internal/repositories"
+	"user_services/internal/models"
+	"user_services/internal/repositories"
 	"testing"
 
 	_ "github.com/lib/pq"

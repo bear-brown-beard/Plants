@@ -3,7 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"go_plants/internal/models"
+	"user_services/internal/models"
 )
 
 type UserRepository interface {

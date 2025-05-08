@@ -2,8 +2,8 @@ package services
 
 import (
 	"context"
-	"go_plants/internal/models"
-	"go_plants/internal/repositories"
+	"user_services/internal/models"
+	"user_services/internal/repositories"
 
 	"golang.org/x/crypto/bcrypt"
 )

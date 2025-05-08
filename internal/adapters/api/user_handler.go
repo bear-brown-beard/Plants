@@ -1,8 +1,8 @@
 package api
 
 import (
-	"go_plants/internal/models"
-	"go_plants/internal/services"
+	"user_services/internal/models"
+	"user_services/internal/services"
 	"net/http"
 	"strconv"
 

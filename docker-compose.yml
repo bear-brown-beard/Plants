@@ -12,7 +12,7 @@ services:
       - DB_PORT=5432
       - DB_USER=plants_user
       - DB_PASSWORD=secret
-      - DB_NAME=plants_db
+      - DB_NAME=users_db
       - DB_SSLMODE=disable
     depends_on:
       - db
@@ -24,7 +24,7 @@ services:
     environment:
       - POSTGRES_USER=plants_user
       - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=plants_db
+      - POSTGRES_DB=users_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

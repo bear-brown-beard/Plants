@@ -1,4 +1,4 @@
-module go_plants
+module user_services
 
 go 1.23
 

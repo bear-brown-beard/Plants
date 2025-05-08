@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	"go_plants/internal/models"
-	"go_plants/internal/repositories/mocks"
-	"go_plants/internal/services"
+	"user_services/internal/models"
+	"user_services/internal/repositories/mocks"
+	"user_services/internal/services"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
