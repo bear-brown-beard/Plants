@@ -14,7 +14,6 @@ func main() {
 
 	r := gin.Default()
 
-	// Регистрируем маршруты
 	api.RegisterUserAPI(r, db)
 
 	if err := r.Run(":8080"); err != nil {
